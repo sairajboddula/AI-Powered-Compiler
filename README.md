@@ -1,114 +1,77 @@
-# AI-Powered Compiler
+# 🚀 AI-Powered Multi-Language Compiler
 
-This project is an AI-powered compiler capable of detecting programming languages (Python or Java), analyzing the code, generating intermediate and optimized code representations, and executing or simulating the code.
+**Version 2.0 - Now with Python, Java, JavaScript, R, Kotlin, and Jython Support!**
 
-## Prerequisites
+## 🔥 Overview
+This AI-powered compiler leverages **Generative AI and Agentic AI** to automatically detect, analyze, optimize, and execute code for multiple programming languages.
 
-1. **Python Installation**: Ensure Python 3.8 or later is installed on your system.
-2. **Java Installation** (for running Java code):
-   - Install the Java Development Kit (JDK).
-   - Add the JDK `bin` directory to your system PATH.
-3. **Libraries**:
-   - `transformers` (Hugging Face Transformers for Generative AI).
-   Install using pip:
-   ```bash
-   pip install transformers
-   ```
-4. **Environment Setup**:
-   - Ensure both `python` and `java` commands are accessible from the terminal.
+### ✨ New Features in v2.0
+✅ **Now Supports Six Languages** - Python, Java, JavaScript, R, Kotlin, and Jython!  
+✅ **Enhanced AI-Powered Debugging** - Auto-corrects errors using Generative AI.  
+✅ **Optimized Execution Engine** - Detects language and runs code efficiently.  
+✅ **Smart Compilation Pipeline** - Includes **Lexical Analysis, Syntax Parsing, Semantic Analysis, Intermediate Code Generation, Optimization, and Execution**.  
+✅ **Cross-Platform Compatibility** - Works on Windows, macOS, and Linux.  
 
-## Features
+## 📌 Supported Languages & Execution
+| Language     | Execution Method  |
+|-------------|-----------------|
+| Python      | Uses `python` command |
+| Java        | Compiles with `javac` and runs with `java` |
+| JavaScript  | Executes via `Node.js` |
+| R           | Runs via `Rscript` |
+| Kotlin      | Compiles using `kotlinc` and runs via `kotlin` |
+| Jython      | Executes via `jython` |
 
-1. **Language Detection**:
-   - Automatically detects whether the input code is Python or Java.
-2. **Compiler Phases**:
-   - Lexical Analysis: Tokenizes the input code.
-   - Syntax Analysis: Constructs a basic syntax tree.
-   - Semantic Analysis: Checks for semantic correctness.
-   - Intermediate Code Generation.
-   - Code Optimization.
-   - Target Code Generation.
-3. **Execution**:
-   - Executes Python code directly.
-   - Compiles and executes Java code using `javac` and `java`.
-4. **Error Recovery**:
-   - Uses Generative AI to suggest fixes for syntax or runtime errors in Python code.
+## 🛠️ Prerequisites
+1. **Python 3.8+** - Install from [python.org](https://www.python.org/)
+2. **Java JDK** (for Java execution) - [Download JDK](https://www.oracle.com/java/technologies/javase-downloads.html)
+3. **Node.js** (for JavaScript execution) - [Download Node.js](https://nodejs.org/)
+4. **R Language** - [Install R](https://cran.r-project.org/)
+5. **Kotlin Compiler** - [Install Kotlin](https://kotlinlang.org/docs/command-line.html)
+6. **Jython (for Python on JVM)** - [Download Jython](https://www.jython.org/download.html)
 
-## How to Run the Compiler
+## ⚡ Installation
+```bash
+# Clone the repository
+git clone https://github.com/sairajboddula/AI-Powered-Compiler.git
+cd ai-powered-compiler
 
-1. Save your Python or Java code to a file. For example:
+# Install dependencies
+pip install transformers
+```
 
-   - Python file: `program.py`
-     ```python
-     print("Hello, world!")
-     ```
-   - Java file: `program.java`
-     ```java
-     public class TempProgram {
-         public static void main(String[] args) {
-             for (int i = 0; i < 5; i++) {
-                 System.out.println(i);
-             }
-         }
-     }
-     ```
+## 🚀 How to Run
+```bash
+python compiler.py <source_file>
+```
+Example:
+```bash
+python compiler.py program.py  # Runs Python code
+python compiler.py program.java  # Compiles and runs Java code
+python compiler.py program.js  # Runs JavaScript via Node.js
+python compiler.py program.r  # Runs R code
+python compiler.py program.kt  # Compiles and runs Kotlin
+python compiler.py program.jy  # Runs Jython
+```
 
-2. Run the compiler with the file as an argument:
+## 🔄 AI-Powered Error Handling
+If your code has an error, the **Generative AI engine** will:
+- Identify the issue.
+- Suggest a fix.
+- Provide a corrected version of the code.
 
-   ```bash
-   python compiler.py <source_file>
-   ```
+## 🔥 Future Improvements
+🔹 **Expand support for more languages** (C++, Go, Swift, etc.)  
+🔹 **Enhance AI debugging for real-time corrections**  
+🔹 **Improve performance and execution speed**  
 
-   Example:
+## 📢 Contribute & Support
+✅ **Fork the repository** and submit pull requests.  
+✅ **Report issues** in the GitHub tracker.  
+✅ **Give it a ⭐ on GitHub!**  
 
-   ```bash
-   python compiler.py program.py
-   ```
+## 📜 License
+This project is open-source and available under the **MIT License**.
 
-3. The compiler will:
-
-   - Detect the language.
-   - Compile and execute the code.
-
-## Pros and Cons
-
-### Pros:
-
-- **Language Detection**: Automatically identifies Python and Java code.
-- **AI-Powered Error Recovery**: Suggests fixes for Python errors using Generative AI.
-- **Complete Compilation Pipeline**: Implements all major compiler phases.
-- **Cross-Language Support**: Supports both Python and Java.
-
-### Cons:
-
-- **Limited Java Execution**: Requires a functioning JDK and assumes the presence of `javac` and `java` in PATH.
-- **Generative AI Dependency**: Error recovery relies on Hugging Face Transformers, which requires internet access and model downloads.
-- **Security**: The use of `exec` for Python execution poses potential security risks.
-
-## Repository Structure
-
-- `compiler.py`: Main compiler script.
-- Example files:
-  - `program.py`: Example Python script.
-  - `program.java`: Example Java script.
-
-## Troubleshooting
-
-1. **Java Not Detected**:
-   - Ensure the JDK is installed.
-   - Check if `javac` and `java` commands work in your terminal.
-2. **Library Issues**:
-   - Run `pip install transformers` to install missing libraries.
-3. **Permission Errors**:
-   - Ensure you have read/write permissions for the directory where the scripts are stored.
-
-## Future Improvements
-
-- Add support for more programming languages.
-- Implement real-time debugging features.
-- Expand AI-based recovery to Java and other languages.
-
-## License
-
-This project is open-source and available under the MIT License.
+📩 Let’s connect! **[LinkedIn](https://linkedin.com/in/sairaj-boddula)**
 

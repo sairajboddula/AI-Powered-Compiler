@@ -1,7 +1,7 @@
 import re
 import sys
-from typing import Union
 import subprocess
+from typing import List, Dict
 from transformers import pipeline  # For Generative AI (e.g., Hugging Face Transformers)
 
 class Compiler:
@@ -11,30 +11,72 @@ class Compiler:
 
     def detect_language(self, code: str) -> str:
         """
-        Detect the programming language (Python or Java) based on syntax.
+        Detect the programming language (Python, Java, JavaScript, R, Kotlin, Jython) based on syntax.
         """
-        python_patterns = [r'def\s+\w+\(', r'print\s*\(', r'if\s+__name__\s*==\s*"__main__"']
-        java_patterns = [r'public\s+class\s+\w+', r'System\.out\.println', r'void\s+main\s*\(']
+        python_patterns = [
+            r'def\s+\w+\(',  # Function definitions
+            r'print\s*\(',   # Print statements
+            r'if\s+__name__\s*==\s*"__main__"',  # Main guard
+            r'^\s*\w+\s*=\s*.+',  # Variable assignments
+            r'import\s+\w+',  # Import statements
+            r'for\s+\w+\s+in\s+.+',  # For loops
+            r'while\s+.+:',  # While loops
+            r'class\s+\w+:',  # Class definitions (note the colon at the end)
+        ]
+        java_patterns = [
+            r'public\s+class\s+\w+',  # Class definitions
+            r'System\.out\.println',  # Print statements
+            r'void\s+main\s*\(',  # Main method
+            r'import\s+java\.',  # Java imports
+        ]
+        javascript_patterns = [r'function\s+\w+\(', r'console\.log', r'let\s+\w+\s*=']
+        r_patterns = [r'<-', r'print\(', r'function\s*\(']
+        kotlin_patterns = [r'fun\s+\w+\(', r'println\(', r'class\s+\w+']
+        jython_patterns = python_patterns  # Jython uses Python syntax
+
+        # Debugging: Print which patterns are matched
+        print("Python Patterns Matched:")
+        for pattern in python_patterns:
+            if re.search(pattern, code):
+                print(f"Matched: {pattern}")
+
+        print("Java Patterns Matched:")
+        for pattern in java_patterns:
+            if re.search(pattern, code):
+                print(f"Matched: {pattern}")
 
         is_python = any(re.search(pattern, code) for pattern in python_patterns)
         is_java = any(re.search(pattern, code) for pattern in java_patterns)
+        is_javascript = any(re.search(pattern, code) for pattern in javascript_patterns)
+        is_r = any(re.search(pattern, code) for pattern in r_patterns)
+        is_kotlin = any(re.search(pattern, code) for pattern in kotlin_patterns)
+        is_jython = any(re.search(pattern, code) for pattern in jython_patterns)
 
-        if is_python and not is_java:
-            self.language = "Python"
-        elif is_java and not is_python:
+        # Prioritize Java if Java patterns are matched
+        if is_java:
             self.language = "Java"
+        elif is_python:
+            self.language = "Python"
+        elif is_javascript:
+            self.language = "JavaScript"
+        elif is_r:
+            self.language = "R"
+        elif is_kotlin:
+            self.language = "Kotlin"
+        elif is_jython:
+            self.language = "Jython"
         else:
             raise ValueError("Unable to determine the language or mixed patterns detected.")
         return self.language
 
-    def lexical_analysis(self, code: str) -> list:
+    def lexical_analysis(self, code: str) -> List[str]:
         """
         Perform lexical analysis: Tokenize the input code.
         """
         tokens = re.findall(r'[\w]+|[{}()=;,.]', code)
         return tokens
 
-    def syntax_analysis(self, tokens: list):
+    def syntax_analysis(self, tokens: List[str]) -> Dict:
         """
         Perform syntax analysis: Build a basic syntax tree.
         """
@@ -42,7 +84,7 @@ class Compiler:
         syntax_tree = {"tokens": tokens}
         return syntax_tree
 
-    def semantic_analysis(self, syntax_tree):
+    def semantic_analysis(self, syntax_tree: Dict):
         """
         Perform semantic analysis: Check for semantic correctness.
         """
@@ -50,7 +92,7 @@ class Compiler:
         if "def" in syntax_tree["tokens"] and "(" not in syntax_tree["tokens"]:
             raise ValueError("Semantic Error: Function definition is incomplete.")
 
-    def intermediate_code_generation(self, syntax_tree):
+    def intermediate_code_generation(self, syntax_tree: Dict) -> str:
         """
         Generate intermediate representation (IR) from syntax tree.
         """
@@ -86,17 +128,40 @@ class Compiler:
             self._execute_python(code)
         elif self.language == "Java":
             self._execute_java(code)
+        elif self.language == "JavaScript":
+            self._execute_javascript(code)
+        elif self.language == "R":
+            self._execute_r(code)
+        elif self.language == "Kotlin":
+            self._execute_kotlin(code)
+        elif self.language == "Jython":
+            self._execute_jython(code)
 
     def _execute_python(self, code: str):
         """
         Execute Python code directly.
         """
-        try:
-            print("Running Python code...")
-            exec(code)  # Warning: Use with caution; for demo purposes only.
-        except Exception as e:
-            print(f"Python Error: {e}")
-            self._recover_error(code, str(e))
+        # Try different Python commands in order
+        python_commands = [ "python", "py"]
+        for cmd in python_commands:
+            try:
+                print(f"Running Python code using {cmd}...")
+                result = subprocess.run(
+                    [cmd, "-c", code], capture_output=True, text=True
+                )
+                if result.returncode != 0:
+                    print(f"Python Error ({cmd}):\n{result.stderr}")
+                    self._recover_error(code, result.stderr)
+                else:
+                    print(f"Python Output ({cmd}):\n{result.stdout}")
+                return  # Exit if successful
+            except FileNotFoundError:
+                continue  # Try the next command
+            except Exception as e:
+                print(f"Python Execution Error ({cmd}): {e}")
+                return
+
+        print("Python not found. Please ensure Python is installed and in PATH.")
 
     def _execute_java(self, code: str):
         """
@@ -121,6 +186,7 @@ class Compiler:
                 )
                 if compile_result.returncode != 0:
                     print(f"Java Compilation Error:\n{compile_result.stderr}")
+                    self._recover_error(code, compile_result.stderr)
                     return
 
                 # Run the compiled Java class
@@ -137,7 +203,102 @@ class Compiler:
         except Exception as e:
             print(f"Java Execution Error: {e}")
 
+    def _execute_javascript(self, code: str):
+        """
+        Execute JavaScript code using Node.js.
+        """
+        try:
+            print("Running JavaScript code...")
+            result = subprocess.run(
+                ["node", "-e", code], capture_output=True, text=True
+            )
+            if result.returncode != 0:
+                print(f"JavaScript Error:\n{result.stderr}")
+                self._recover_error(code, result.stderr)
+            else:
+                print(f"JavaScript Output:\n{result.stdout}")
+        except FileNotFoundError as e:
+            print("Node.js not found. Please ensure Node.js is installed and in PATH.")
+        except Exception as e:
+            print(f"JavaScript Execution Error: {e}")
 
+    def _execute_r(self, code: str):
+        """
+        Execute R code using Rscript.
+        """
+        try:
+            print("Running R code...")
+            result = subprocess.run(
+                ["Rscript", "-e", code], capture_output=True, text=True
+            )
+            if result.returncode != 0:
+                print(f"R Error:\n{result.stderr}")
+                self._recover_error(code, result.stderr)
+            else:
+                print(f"R Output:\n{result.stdout}")
+        except FileNotFoundError as e:
+            print("Rscript not found. Please ensure R is installed and in PATH.")
+        except Exception as e:
+            print(f"R Execution Error: {e}")
+
+    def _execute_kotlin(self, code: str):
+        """
+        Execute Kotlin code using kotlinc and kotlin.
+        """
+        import os
+        import tempfile
+
+        try:
+            # Create a temporary directory for the Kotlin file
+            with tempfile.TemporaryDirectory() as tempdir:
+                kotlin_file = os.path.join(tempdir, "TempProgram.kt")
+                class_name = "TempProgramKt"
+
+                # Write the Kotlin code to a file
+                with open(kotlin_file, 'w') as f:
+                    f.write(code)
+
+                # Compile the Kotlin file
+                compile_result = subprocess.run(
+                    ["kotlinc", kotlin_file, "-d", tempdir], capture_output=True, text=True
+                )
+                if compile_result.returncode != 0:
+                    print(f"Kotlin Compilation Error:\n{compile_result.stderr}")
+                    self._recover_error(code, compile_result.stderr)
+                    return
+
+                # Run the compiled Kotlin class
+                run_result = subprocess.run(
+                    ["kotlin", "-cp", tempdir, class_name], capture_output=True, text=True
+                )
+                if run_result.returncode != 0:
+                    print(f"Kotlin Runtime Error:\n{run_result.stderr}")
+                else:
+                    print(f"Kotlin Output:\n{run_result.stdout}")
+
+        except FileNotFoundError as e:
+            print("Kotlin tools (kotlinc/kotlin) not found. Please ensure Kotlin is installed and in PATH.")
+        except Exception as e:
+            print(f"Kotlin Execution Error: {e}")
+
+    def _execute_jython(self, code: str):
+        """
+        Execute Jython code using jython.
+        """
+        try:
+            print("Running Jython code...")
+            result = subprocess.run(
+                ["jython", "-c", code], capture_output=True, text=True
+            )
+            if result.returncode != 0:
+                print(f"Jython Error:\n{result.stderr}")
+                self._recover_error(code, result.stderr)
+            else:
+                print(f"Jython Output:\n{result.stdout}")
+        except FileNotFoundError as e:
+            print("Jython not found. Please ensure Jython is installed and in PATH.")
+        except Exception as e:
+            print(f"Jython Execution Error: {e}")
 
     def _recover_error(self, code: str, error_message: str):
         """
